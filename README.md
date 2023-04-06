@@ -103,6 +103,7 @@ Description: 返回被选中的区域的数据
 ### handleOnAcitve
 ---
 params: record
+
 Description: 预选中区域
 
 ### startDraw
@@ -139,7 +140,7 @@ Description: 开始绘制区域
 ---
 ``` bash
 <vue-video-draw-area ref="videoDraw">
-  template slot="deleteIcon">
+  <template slot="deleteIcon">
     <a-icon type="delete" />
   </template>
 </vue-video-draw-area>
@@ -149,7 +150,7 @@ Description: 开始绘制区域
 ---
 ``` bash
 <vue-video-draw-area ref="videoDraw">
-  template slot="deleteTips" slot-scope="{scope}">
+  <template slot="deleteTips" slot-scope="{scope}">
     <a-popconfirm
       title="确定删除并重绘区域吗?"
       ok-text="确定"
