@@ -201,6 +201,7 @@ export default {
       if (this.currentArea.points.length === 2) {
         this.isStartDraw = false;
         this.currentArea.isDraw = false;
+        this.$emit('finished', this.currentArea);
       }
     },
     addEventContextmenuSvg(e) {

@@ -4,9 +4,9 @@ import App from './App.vue'
 import vuescroll from 'vuescroll'
 import 'vuescroll/dist/vuescroll.css'
 
-import vueVideoDrawArea from './lib'
+import VideoDrawArea from 'video-draw-area'
 
-Vue.use(vueVideoDrawArea)
+Vue.use(VideoDrawArea)
 Vue.use(vuescroll)
 
 new Vue({
