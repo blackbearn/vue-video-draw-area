@@ -52,19 +52,23 @@
           "
           :style="deleteStyle"
         >
-          <div class="delete_tips" v-show="activeArea.isTips">
-            <h2>提示：</h2>
-            <div class="tips_body">
-              <span>确定删除并重绘区域吗?</span>
+          <slot name="deleteTips" :scope="activeArea">
+            <div class="delete_tips" v-show="activeArea.isTips">
+              <h2>提示：</h2>
+              <div class="tips_body">
+                <span>确定删除并重绘区域吗?</span>
+              </div>
+              <div class="tips_footer">
+                <button class="footer_btn cancel" @click="handleOnCancel(activeArea)">取消</button>
+                <button class="footer_btn primary" @click="handleOnConfirm(activeArea)">确定</button>
+              </div>
             </div>
-            <div class="tips_footer">
-              <button class="footer_btn cancel" @click="handleOnCancel(activeArea)">取消</button>
-              <button class="footer_btn primary" @click="handleOnConfirm(activeArea)">确定</button>
-            </div>
-          </div>
-          <span @click="handleOnDelete(activeArea)" v-if="!activeArea.isTips">
-            <delete-icon style="color: #fff;"></delete-icon>
-          </span>
+            <span @click="handleOnDelete(activeArea)" v-if="!activeArea.isTips">
+              <slot name="deleteIcon">
+                <delete-icon style="color: #fff;"></delete-icon>
+              </slot>
+            </span>
+          </slot>
         </div>
     </div>
   </ex-scroll>
@@ -81,6 +85,9 @@ export default {
       type: Array,
       default: () => ([]),
     },
+    message: {
+      type: Object,
+    }
   },
   // 定义属性
   data() {
@@ -121,9 +128,15 @@ export default {
     initData(val) {
       this.areaList = val;
     },
+    message(val) {
+      this.$Messages = val;
+    }
   },
   // 生命周期 - 创建完成（可以访问当前this实例）
   created() {
+    if (this.message) {
+      this.$Messages = this.message;
+    }
     // 初始化画框区域的数据
     if (this.initData && this.initData.length) {
       this.areaList = this.initData;
@@ -210,6 +223,7 @@ export default {
     addEventMousemoveSvg(e) {
       this.line.setAttribute('x2', e.layerX)
       this.line.setAttribute('y2', e.layerY)
+      this.$emit('onmousemove', {e, current: this.currentArea})
     },
     handleMousedownEvent(e) {
       e.preventDefault()
@@ -230,6 +244,7 @@ export default {
 
         this.isStartDraw = false
         // 更新数据
+        this.$emit('finished', this.currentArea);
       } else {
         this.$Messages.warning('必须绘制三个点后, 闭合区域, 请重新绘制')
         // this.currentArea.points = []
@@ -257,7 +272,7 @@ export default {
       if (!current.id) current.id = (this.areaList.length + 1) + '';
       this.currentArea = JSON.parse(JSON.stringify(current));
       this.removeActive();
-      this.areaList.push(this.currentArea)
+      this.areaList.push(this.currentArea);
     },
     removeActive() {
       this.areaList = this.areaList.map((it) => {
@@ -266,13 +281,14 @@ export default {
         return it
       })
     },
-    handleOnAcitve(record, idx) {
+    handleOnAcitve(record) {
       this.areaList = this.areaList.map((it) => {
         it.isActive = false
         it.isDraw = false
         return it
       })
-      record.isActive = true
+      record.isActive = true;
+      this.$emit('onactive', record);
     },
     handleOnDelete(area) {
       area.isTips = true;
@@ -295,6 +311,7 @@ export default {
       this.currentArea.isActive = true;
       this.currentArea.points = [];
       this.startDraw(this.currentArea)
+      this.$emit('ondelete', area);
     },
     isEmptyObj(obj) {
       let isEmpty = true
